@@ -1,7 +1,7 @@
 document.body.classList.add('appear');
 
 const YOSEMITE_IMAGES = [
-  [/golden hour|sunrise|California mountain landscape/i, '/assets/yosemite/001-use-case-photorealistic-natural-asset-type-virgin-atlantic-s.png'],
+  [/golden hour|sunrise|California mountain landscape|Yosemite Valley view/i, '/assets/yosemite/001-use-case-photorealistic-natural-asset-type-virgin-atlantic-s.png'],
   [/Hikers climbing|Waterfall spray|Mist Trail waterfall/i, '/assets/yosemite/002-use-case-photorealistic-natural-asset-type-content-card-imag.png'],
   [/high-country trail|Wildflower|Tuolumne|High-country meadow/i, '/assets/yosemite/003-use-case-photorealistic-natural-asset-type-content-card-imag.png'],
   [/Glacier Point|viewpoint|San Francisco holidays|Travellers looking/i, '/assets/yosemite/004-use-case-photorealistic-natural-asset-type-inspiration-card-.png'],
