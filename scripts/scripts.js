@@ -8,7 +8,7 @@ document.querySelectorAll('[data-carousel]').forEach((carousel) => {
   if (!previous || !next) return;
 
   const scrollByCard = (direction) => {
-    const card = carousel.querySelector('article, a');
+    const card = carousel.querySelector('.portrait-card, .hotel-card, article, a');
     const styles = window.getComputedStyle(carousel);
     const gap = Number.parseFloat(styles.columnGap || styles.gap || '24') || 24;
     const distance = card ? card.getBoundingClientRect().width + gap : 320;

@@ -494,16 +494,21 @@ h3 {
 }
 
 .info-grid article,
+.info-grid > div,
 .benefit-panel article,
+.benefit-panel > div,
 .support-grid article,
-.itinerary-cards article {
+.support-grid > div,
+.itinerary-cards article,
+.itinerary-cards > div {
   padding: 16px;
   border: 1px solid var(--color-border-neutral-minimal);
   border-radius: 8px;
   background: var(--color-background-neutral-primary);
 }
 
-.info-grid article {
+.info-grid article,
+.info-grid > div {
   text-align: center;
 }
 
@@ -648,7 +653,8 @@ h3 {
   gap: 24px;
 }
 
-.article-list article {
+.article-list article,
+.article-list > div {
   border-bottom: 1px solid var(--color-border-neutral-minimal);
   padding-bottom: 16px;
 }
