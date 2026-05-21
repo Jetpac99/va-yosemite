@@ -162,6 +162,102 @@ function enhanceArticleList(section) {
   }
 }
 
+function enhanceTabs(section) {
+  section.className = 'tabs va-container';
+  section.id = section.id || 'highlights';
+
+  const heading = section.querySelector('h2');
+  const tabLabels = ['Waterfalls', 'Viewpoints', 'High country'];
+  const imageParagraphs = [...section.querySelectorAll(':scope > p')]
+    .filter((paragraph) => paragraph.querySelector('img'));
+  const contentParagraphs = [...section.querySelectorAll(':scope > p')]
+    .filter((paragraph) => !paragraph.querySelector('img') && !tabLabels.every((label) => paragraph.textContent.includes(label)));
+
+  section.textContent = '';
+  if (heading) section.append(heading);
+
+  const tabButtons = document.createElement('div');
+  tabButtons.className = 'tab-buttons';
+  tabButtons.setAttribute('role', 'tablist');
+  tabButtons.setAttribute('aria-label', 'Yosemite highlights');
+
+  tabLabels.forEach((label, index) => {
+    const slug = label.toLowerCase().replace(/\s+/g, '');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.id = `${slug}-tab`;
+    button.setAttribute('role', 'tab');
+    button.setAttribute('aria-selected', String(index === 0));
+    button.setAttribute('aria-controls', `tab-${slug}`);
+    button.textContent = label;
+    tabButtons.append(button);
+  });
+  section.append(tabButtons);
+
+  tabLabels.forEach((label, index) => {
+    const slug = label.toLowerCase().replace(/\s+/g, '');
+    const panel = document.createElement('div');
+    panel.className = 'tab-panel';
+    panel.id = `tab-${slug}`;
+    panel.setAttribute('role', 'tabpanel');
+    panel.setAttribute('aria-labelledby', `${slug}-tab`);
+    if (index > 0) panel.hidden = true;
+
+    const img = imageParagraphs[index]?.querySelector('img');
+    if (img) panel.append(img);
+
+    const copy = document.createElement('p');
+    copy.textContent = contentParagraphs[index]?.textContent || '';
+    panel.append(copy);
+    section.append(panel);
+  });
+}
+
+function enhanceDestinationCarousel(section) {
+  section.className = 'destination-carousel va-container';
+  const links = [...section.querySelectorAll('a')];
+  section.textContent = '';
+
+  links.forEach((link) => {
+    const text = [...link.childNodes]
+      .filter((node) => node.nodeType === Node.TEXT_NODE)
+      .map((node) => node.textContent.trim())
+      .join(' ')
+      .trim();
+
+    [...link.childNodes].forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) node.remove();
+    });
+
+    if (text && !link.querySelector('span')) {
+      const span = document.createElement('span');
+      span.textContent = text;
+      link.append(span);
+    }
+
+    section.append(link);
+  });
+}
+
+function enhanceFaq(section) {
+  section.className = 'faq va-container';
+  const heading = section.querySelector('h2');
+  const paragraphs = [...section.querySelectorAll(':scope > p')];
+  section.textContent = '';
+  if (heading) section.append(heading);
+
+  for (let index = 0; index < paragraphs.length; index += 2) {
+    const details = document.createElement('details');
+    if (index === 0) details.open = true;
+    const summary = document.createElement('summary');
+    summary.textContent = paragraphs[index]?.textContent || '';
+    const copy = document.createElement('p');
+    copy.textContent = paragraphs[index + 1]?.textContent || '';
+    details.append(summary, copy);
+    section.append(details);
+  }
+}
+
 function enhanceDaYosemitePage() {
   const main = document.querySelector('main');
   const sections = [...main?.children || []];
@@ -180,24 +276,10 @@ function enhanceDaYosemitePage() {
   groupPairs(sections[12], 'benefit-panel va-container');
   enhanceHotelCarousel(sections[14]);
   groupPairs(sections[16], 'itinerary-cards va-container', true);
-  sections[17]?.classList.add('tabs', 'va-container');
+  enhanceTabs(sections[17]);
   enhanceArticleList(sections[19]);
-  sections[20]?.classList.add('faq', 'va-container');
-  sections[22]?.classList.add('destination-carousel', 'va-container');
-  sections[22]?.querySelectorAll('a').forEach((link) => {
-    const text = [...link.childNodes]
-      .filter((node) => node.nodeType === Node.TEXT_NODE)
-      .map((node) => node.textContent.trim())
-      .join(' ')
-      .trim();
-    if (!text || link.querySelector('span')) return;
-    [...link.childNodes].forEach((node) => {
-      if (node.nodeType === Node.TEXT_NODE) node.remove();
-    });
-    const span = document.createElement('span');
-    span.textContent = text;
-    link.append(span);
-  });
+  enhanceFaq(sections[20]);
+  enhanceDestinationCarousel(sections[22]);
   restoreImageSources(main);
 }
 
