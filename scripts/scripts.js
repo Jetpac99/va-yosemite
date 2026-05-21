@@ -262,6 +262,7 @@ function enhanceDaYosemitePage() {
   const main = document.querySelector('main');
   const sections = [...main?.children || []];
   if (!sections.length || sections[0].classList.contains('hero')) return;
+  if (!/Yosemite/i.test(document.title) && !/Yosemite/i.test(main.textContent.slice(0, 800))) return;
 
   document.body.classList.add('va-yosemite-da');
   restoreImageSources(main);
