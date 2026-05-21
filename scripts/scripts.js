@@ -1,7 +1,210 @@
 document.body.classList.add('appear');
 
+const YOSEMITE_IMAGES = [
+  [/golden hour|sunrise|California mountain landscape/i, '/assets/yosemite/001-use-case-photorealistic-natural-asset-type-virgin-atlantic-s.png'],
+  [/Hikers climbing|Waterfall spray|Mist Trail waterfall/i, '/assets/yosemite/002-use-case-photorealistic-natural-asset-type-content-card-imag.png'],
+  [/high-country trail|Wildflower|Tuolumne|High-country meadow/i, '/assets/yosemite/003-use-case-photorealistic-natural-asset-type-content-card-imag.png'],
+  [/Glacier Point|viewpoint|San Francisco holidays|Travellers looking/i, '/assets/yosemite/004-use-case-photorealistic-natural-asset-type-inspiration-card-.png'],
+];
+
+function restoreImageSources(root = document) {
+  root.querySelectorAll('img').forEach((img) => {
+    const match = YOSEMITE_IMAGES.find(([pattern]) => pattern.test(img.alt || ''));
+    if (match) img.src = match[1];
+  });
+}
+
+function moveImageOutOfParagraph(section) {
+  const img = section.querySelector('img');
+  const imageParagraph = img?.closest('p');
+  if (img && imageParagraph) imageParagraph.replaceWith(img);
+  return img;
+}
+
+function wrapRemainingContent(section) {
+  const wrapper = document.createElement('div');
+  [...section.childNodes].forEach((node) => {
+    if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'IMG') return;
+    wrapper.append(node);
+  });
+  section.append(wrapper);
+  return wrapper;
+}
+
+function enhanceHero(section) {
+  section.className = 'hero';
+  const img = moveImageOutOfParagraph(section);
+  if (img) {
+    const picture = document.createElement('picture');
+    img.replaceWith(picture);
+    picture.append(img);
+  }
+
+  const copy = document.createElement('div');
+  copy.className = 'hero-copy va-container';
+  const card = document.createElement('div');
+  card.className = 'hero-card';
+  [...section.childNodes].forEach((node) => {
+    if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'PICTURE') return;
+    card.append(node);
+  });
+  card.querySelector('a')?.classList.add('button-primary');
+  copy.append(card);
+  section.append(copy);
+}
+
+function enhancePromo(section, reverse = false) {
+  section.className = `promo-card va-container${reverse ? ' reverse' : ''}`;
+  moveImageOutOfParagraph(section);
+  const wrapper = wrapRemainingContent(section);
+  wrapper.querySelector('a')?.classList.add('button-primary');
+  const badge = wrapper.querySelector('p');
+  if (badge?.textContent.trim() === 'Trail spotlight') badge.classList.add('badge');
+}
+
+function groupPairs(section, className, withSpan = false) {
+  section.className = className;
+  const children = [...section.children];
+  section.textContent = '';
+  for (let index = 0; index < children.length;) {
+    const card = document.createElement('div');
+    if (withSpan && children[index]?.tagName === 'P') {
+      const span = document.createElement('span');
+      span.textContent = children[index].textContent;
+      card.append(span);
+      index += 1;
+    }
+    if (children[index]) card.append(children[index]);
+    if (children[index + 1]) card.append(children[index + 1]);
+    section.append(card);
+    index += 2;
+  }
+}
+
+function enhanceCarousel(section) {
+  section.className = 'offer-carousel va-container';
+  const heading = section.querySelector('h2');
+  const track = section.querySelector('.carousel-track');
+  track?.setAttribute('data-carousel', '');
+
+  const controlsText = [...section.children].find((child) => child.tagName === 'P' && child.textContent.includes('‹'));
+  const head = document.createElement('div');
+  head.className = 'carousel-head';
+  const controls = document.createElement('div');
+  controls.className = 'carousel-controls';
+  controls.innerHTML = '<button type="button" data-carousel-prev aria-label="Previous trail">‹</button><button type="button" data-carousel-next aria-label="Next trail">›</button>';
+  if (heading) head.append(heading);
+  head.append(controls);
+  section.prepend(head);
+  controlsText?.remove();
+
+  const images = [
+    YOSEMITE_IMAGES[2][1],
+    YOSEMITE_IMAGES[3][1],
+    YOSEMITE_IMAGES[0][1],
+  ];
+  track?.querySelectorAll(':scope > div').forEach((card, index) => {
+    card.className = 'portrait-card';
+    if (!card.querySelector('img')) {
+      const img = document.createElement('img');
+      img.src = images[index] || images[0];
+      img.alt = card.querySelector('h3')?.textContent || 'Yosemite trail';
+      card.prepend(img);
+    }
+    const body = document.createElement('div');
+    [...card.childNodes].forEach((node) => {
+      if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'IMG') return;
+      body.append(node);
+    });
+    card.append(body);
+  });
+}
+
+function enhanceHotelCarousel(section) {
+  section.className = 'hotel-carousel va-container';
+  const children = [...section.children];
+  section.textContent = '';
+  for (let index = 0; index < children.length;) {
+    const card = document.createElement('div');
+    card.className = 'hotel-card';
+    if (children[index]?.querySelector?.('img')) {
+      card.append(children[index].querySelector('img'));
+      index += 1;
+    }
+    const body = document.createElement('div');
+    while (children[index] && children[index].tagName !== 'P') {
+      body.append(children[index]);
+      index += 1;
+    }
+    while (children[index] && !children[index].querySelector?.('img')) {
+      body.append(children[index]);
+      index += 1;
+    }
+    card.append(body);
+    section.append(card);
+  }
+}
+
+function enhanceArticleList(section) {
+  section.className = 'article-list va-container';
+  const children = [...section.children];
+  section.textContent = '';
+  for (let index = 0; index < children.length;) {
+    const card = document.createElement('div');
+    if (children[index]?.querySelector?.('img')) {
+      card.append(children[index].querySelector('img'));
+      index += 1;
+    }
+    if (children[index]) card.append(children[index]);
+    if (children[index + 1]) card.append(children[index + 1]);
+    section.append(card);
+    index += 2;
+  }
+}
+
+function enhanceDaYosemitePage() {
+  const main = document.querySelector('main');
+  const sections = [...main?.children || []];
+  if (!sections.length || sections[0].classList.contains('hero')) return;
+
+  document.body.classList.add('va-yosemite-da');
+  restoreImageSources(main);
+  enhanceHero(sections[0]);
+  sections[1]?.classList.add('breadcrumbs', 'va-container');
+  [2, 3, 6, 9, 11, 13, 15, 18, 21].forEach((index) => sections[index]?.classList.add('text-lockup', 'va-container'));
+  enhancePromo(sections[4], true);
+  enhanceCarousel(sections[5]);
+  groupPairs(sections[7], 'info-grid va-container');
+  groupPairs(sections[8], 'support-grid va-container');
+  enhancePromo(sections[10]);
+  groupPairs(sections[12], 'benefit-panel va-container');
+  enhanceHotelCarousel(sections[14]);
+  groupPairs(sections[16], 'itinerary-cards va-container', true);
+  sections[17]?.classList.add('tabs', 'va-container');
+  enhanceArticleList(sections[19]);
+  sections[20]?.classList.add('faq', 'va-container');
+  sections[22]?.classList.add('destination-carousel', 'va-container');
+  sections[22]?.querySelectorAll('a').forEach((link) => {
+    const text = [...link.childNodes]
+      .filter((node) => node.nodeType === Node.TEXT_NODE)
+      .map((node) => node.textContent.trim())
+      .join(' ')
+      .trim();
+    if (!text || link.querySelector('span')) return;
+    [...link.childNodes].forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) node.remove();
+    });
+    const span = document.createElement('span');
+    span.textContent = text;
+    link.append(span);
+  });
+  restoreImageSources(main);
+}
+
+enhanceDaYosemitePage();
+
 document.querySelectorAll('[data-carousel]').forEach((carousel) => {
-  const section = carousel.closest('section');
+  const section = carousel.closest('section, .offer-carousel, .hotel-carousel');
   const previous = section?.querySelector('[data-carousel-prev]');
   const next = section?.querySelector('[data-carousel-next]');
 
